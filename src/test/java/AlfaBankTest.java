@@ -1,5 +1,5 @@
 
-
+import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.WebDriverRunner;
 import com.codeborne.selenide.logevents.SelenideLogger;
 import io.qameta.allure.*;
@@ -16,13 +16,31 @@ import static com.codeborne.selenide.Selectors.*;
 import static com.codeborne.selenide.Selenide.*;
 import static io.qameta.allure.Allure.step;
 
-
 public class AlfaBankTest extends BaseTest {
+    SelenideElement link = $(byText("Вклады")),
+            linkText = $(byLinkText("Альфа-Счёт")),
+            name = $(byName("fullName")),
+            birthDate = $(byName("passportBirthDateField")),
+            phone = $(byName("phone")),
+            mail = $(byName("email")),
+            form = $("#alfa #form"),
+            lastName = $("[value='Ганс']"),
+            firstName = $("[value='Христиан']"),
+            middleName = $("[value='Андерсон']"),
+            gender = $(byText("Мужской")),
+            button = $("[data-test-id=button]"),
+            smsModal = $("[data-test-id=sms-confirmation-modal]");
+    String fullName = "Ганс Христиан Андерсон",
+            date = "01.01.2000",
+            phoneNumber = "9999860270",
+            mailAdress = "mail@mail.com",
+            text = "Введите код из смс",
+            phoneNumberText = "+7 (999) 986-02-70";
+
     @Attachment(value = "А что тут у нас?", type = "image/png", fileExtension = "png")
     public byte[] attachScreenshot() {
         return ((TakesScreenshot) WebDriverRunner.getWebDriver()).getScreenshotAs(OutputType.BYTES);
     }
-
     @Test
     @Feature("Анкета для Альфа-счета")
     @Story("Заполнение анкеты и проверка мобильного номера телефона")
@@ -39,30 +57,30 @@ public class AlfaBankTest extends BaseTest {
             attachScreenshot();
         });
         step("Переход на страницу анкеты", () -> {
-            $(byText("Вклады")).click();
-            $(byLinkText("Альфа-Счёт")).click();
+            link.click();
+            linkText.click();
             attachScreenshot();
         });
         step("Заполнение анкеты", () -> {
-            $(byName("fullName")).setValue("Ганс Христиан Андерсон");
-            $(byName("passportBirthDateField")).setValue("01.01.2000");
-            $(byName("phone")).setValue("9999860270");
-            $(byName("email")).setValue("mail@mail.com");
+            name.setValue(fullName);
+            birthDate.setValue(date);
+            phone.setValue(phoneNumber);
+            mail.setValue(mailAdress);
             attachScreenshot();
         });
         step("Проверка заполнения анкеты", () -> {
-            $("#alfa #form").shouldHave(appear);
-            $("[value='Ганс']").shouldBe(visible);
-            $("[value='Христиан']").shouldBe(visible);
-            $("[value='Андерсон']").shouldBe(visible);
-            $(byText("Мужской")).click();
+            form.shouldHave(appear);
+            lastName.shouldBe(visible);
+            firstName.shouldBe(visible);
+            middleName.shouldBe(visible);
+            gender.click();
             attachScreenshot();
         });
         step("Проверка телефоного номера", () -> {
-            $("[data-test-id=button]").click();
-            $("[data-test-id=sms-confirmation-modal]").shouldHave(appear);
-            $("[data-test-id=sms-confirmation-modal]").shouldHave(text("Введите код из смс"),
-                    text("+7 (999) 986-02-70"));
+            button.click();
+            smsModal.shouldHave(appear);
+            smsModal.shouldHave(text(text),
+                    text(phoneNumberText));
             attachScreenshot();
         });
     }
